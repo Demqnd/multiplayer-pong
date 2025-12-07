@@ -52,6 +52,11 @@ document.addEventListener("keydown", (e) => {
         holdingDown = true;
         e.preventDefault();
     }
+    // Number keys 1-9 set speed; 0 sets 10
+    if (/^[0-9]$/.test(e.key)) {
+        const speed = e.key === "0" ? 10 : Number(e.key);
+        socket.emit("setSpeed", { speed });
+    }
 });
 
 document.addEventListener("keyup", (e) => {

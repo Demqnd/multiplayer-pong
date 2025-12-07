@@ -35,6 +35,7 @@ function randomizeBall() {
     const angle = (Math.random() * 0.5 - 0.25); // small vertical component
     ball.vx = speed * dirX;
     ball.vy = speed * angle;
+    console.log("New ball velocity:", ball.vx, ball.vy);
 }
 
 randomizeBall();
@@ -126,6 +127,17 @@ io.on("connection", (socket) => {
         const p = players.get(socket.id);
         if (p) p.y = data.y;
         io.emit("stateUpdate", data); // broadcast moves
+    });
+
+
+    // Set ball speed via number keys (1-10) — preserve direction
+    socket.on("setSpeed", (data) => {
+        if (ball.vx < 0) {
+            ball.vx = -(Math.abs(data.speed*2));
+        } else {
+            ball.vx = Math.abs(data.speed*2);
+        }
+        io.emit("ball", ball);
     });
 
     socket.on("disconnect", (reason) => {
