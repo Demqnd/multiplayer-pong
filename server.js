@@ -22,6 +22,7 @@ app.get("/health", (req, res) => {
 const CANVAS_WIDTH = 800;
 const CANVAS_HEIGHT = 500;
 const BALL_RADIUS = 6;
+let cheatKey = null;
 let ball = {
     x: CANVAS_WIDTH / 2,
     y: CANVAS_HEIGHT / 2,
@@ -69,25 +70,44 @@ function tickBall() {
     // Check collision with left paddle if moving left
     if (ball.vx < 0) {
         const nextLeftEdge = ball.x - BALL_RADIUS;
-        if (nextLeftEdge <= leftX + paddleW && nextLeftEdge >= leftX) {
+        if (nextLeftEdge <= leftX + paddleW && nextLeftEdge >= leftX - 20) {
             if (ball.y + BALL_RADIUS >= leftY && ball.y - BALL_RADIUS <= leftY + paddleH) {
                 // place ball just outside paddle and reflect
                 ball.x = leftX + paddleW + BALL_RADIUS;
                 ball.vx *= -1;
 
                 ball.vy = (ball.y - (leftY+(paddleH/2)))/15;
+
+
+            }
+
+            if (cheatKey === "o") {
+                // user has activated cheat so ball cants go past paddleX
+                ball.vx = Math.abs(ball.vx);
+                
             }
         }
+
+
+      
+
+        
     }
     // Check collision with right paddle if moving right
     if (ball.vx > 0) {
         const nextRightEdge = ball.x + BALL_RADIUS;
-        if (nextRightEdge >= rightX && nextRightEdge <= rightX + paddleW) {
+        if (nextRightEdge >= rightX && nextRightEdge <= rightX + paddleW + 20) {
             if (ball.y + BALL_RADIUS >= rightY && ball.y - BALL_RADIUS <= rightY + paddleH) {
                 ball.x = rightX - BALL_RADIUS;
                 ball.vx *= -1;
 
                 ball.vy = (ball.y - (rightY+(paddleH/2)))/15;
+            }
+
+            if (cheatKey === "p") {
+                // user has activated cheat so ball cants go past paddleX
+                ball.vx = -1 * (Math.abs(ball.vx));
+                
             }
         }
     }
@@ -138,6 +158,20 @@ io.on("connection", (socket) => {
             ball.vx = Math.abs(data.speed*2);
         }
         io.emit("ball", ball);
+    });
+
+    socket.on("cheat", (data) => {
+        if (data.cheatKey === "o" && cheatKey == "o") {
+            cheatKey = null;
+            return;
+        }
+        
+        if (data.cheatKey === "p" && cheatKey == "p") {
+            cheatKey = null;
+            return;
+        }
+
+        cheatKey = data.cheatKey;
     });
 
     socket.on("disconnect", (reason) => {

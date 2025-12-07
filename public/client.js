@@ -57,6 +57,14 @@ document.addEventListener("keydown", (e) => {
         const speed = e.key === "0" ? 10 : Number(e.key);
         socket.emit("setSpeed", { speed });
     }
+
+    if (e.key === "o" || e.key === "O") {
+        socket.emit("cheat", { cheatKey: "o" });
+    }
+
+    if (e.key === "p" || e.key === "P") {
+        socket.emit("cheat", { cheatKey: "p" });
+    }
 });
 
 document.addEventListener("keyup", (e) => {
